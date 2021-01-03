@@ -1,0 +1,26 @@
+{
+  "name": "meesterdev/file-wrapper",
+  "description": "A wrapper for files, that can be used in an object oriented way.",
+  "minimum-stability": "stable",
+  "license": "MIT",
+  "version": "0.0.1",
+  "authors": [
+    {
+      "name": "Thomas Meester",
+      "homepage": "https://meester.dev/"
+    }
+  ],
+  "homepage": "https://meester.dev/",
+  "require": {
+    "php": "^7.4|^8.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9.5"
+  },
+  "prefer-stable": true,
+  "autoload": {
+    "psr-4": {
+      "MeesterDev\\FileWrapper\\": "src"
+    }
+  }
+}
