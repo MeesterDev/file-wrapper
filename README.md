@@ -1,5 +1,5 @@
 # File wrapper
-An object oriented way of dealing with files and performaning actions on them.
+An object-oriented way of dealing with files and performing actions on them.
 
 ## Usage
 ### Example
@@ -89,7 +89,7 @@ Writes the rows to the file as CSV. `$mode` is the file mode used to open the fi
 Writes the SimpleXMLElement to the file (as XML).
 
 ##### $file->writeDomXml(DOMDocument $document, ?\DOMNode $rootNode = null, int $flags = 0): File
-Writes the DOMDOcument to the file (as XML). The `$rootNode` and `$flags` arguments are passed to the [`saveXML()`](https://www.php.net/manual/en/domdocument.savexml) method.
+Writes the DOMDocument to the file (as XML). The `$rootNode` and `$flags` arguments are passed to the [`saveXML()`](https://www.php.net/manual/en/domdocument.savexml) method.
 
 ##### $file->writeDomHtml(DOMDocument $document, ?\DOMNode $rootNode = null): File
 Same as above, but uses the HTML saving methods of DOMDocument.
@@ -131,7 +131,7 @@ Moves the file to `$to`, if it is an uploaded file. You can set `$relativeFromCu
 ##### $file->rename(string $to, bool $relativeFromCurrentFile = true, $context = null): File
 Renames the file to `$to`. You can set `$relativeFromCurrentFile` to false to tell the class to not do any modifications with `$destination`, in which case the argument is passed directly to the native [`rename()`](https://www.php.net/manual/en/function.rename.php) function. `$context` is always passed. Returns the new file.
 
-##### $file->delete(bool $recurisve, $context = null): File
+##### $file->delete(bool $recursive, $context = null): File
 Deletes the file if it is a file, or the directory if it is a directory and `$recursive` is `true`. The `$context` is passed to all calls made to [`unlink()`](https://www.php.net/manual/en/function.unlink.php). If deletion of any file fails, this is silently ignored until all deletions have been attempted, at which point an exception is thrown. If scanning of a directory fails, the same logic applies.
 
 ##### $file->stat(): ?array
