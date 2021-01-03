@@ -11,9 +11,9 @@ class FileOperationException extends \Exception {
     public const OPERATION_CREATE_TEMPORARY_FILE = 'create temporary file in';
     public const OPERATION_LINK_TO               = 'link to';
     public const OPERATION_FIND_LINK_TARGET      = 'find link target of';
-    public const OPERATION_SCAN                  = 'scan';
     public const OPERATION_CREATE_SUBDIRECTORY   = 'create subdirectory of';
     public const OPERATION_MOVE_UPLOADED_FILE    = 'move uploaded file';
+    public const OPERATION_READ                  = 'read';
 
     public string $operation;
 

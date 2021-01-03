@@ -135,8 +135,8 @@ class File extends SplFileInfo {
     // region reading
 
     /**
-     * @param int  $flags
-     * @param null $context
+     * @param int $flags
+     * @param     $context
      *
      * @return array
      * @throws NotReadableException
@@ -148,19 +148,24 @@ class File extends SplFileInfo {
     }
 
     /**
-     * @param null $context
+     * @param $context
      *
-     * @return false|int
+     * @return static
      * @throws NotReadableException
+     * @throws FileOperationException
      */
-    public function readToOutput($context = null) {
+    public function readToOutput($context = null): self {
         $this->checkIsReadable();
 
-        return \readfile($this->path, false, $context);
+        if (\readfile($this->path, false, $context) === false) {
+            throw new FileOperationException($this->path, FileOperationException::OPERATION_READ);
+        }
+
+        return $this;
     }
 
     /**
-     * @param null     $context
+     * @param          $context
      * @param int      $offset
      * @param int|null $maxLength
      *
@@ -258,8 +263,8 @@ class File extends SplFileInfo {
     }
 
     /**
-     * @param int  $xmlFlags
-     * @param null $context
+     * @param int $xmlFlags
+     * @param     $context
      *
      * @return \DOMDocument
      * @throws FileNotFoundException
@@ -272,7 +277,8 @@ class File extends SplFileInfo {
 
         $document = new \DOMDocument();
 
-        if ($document->loadXML($this->contents($context), $xmlFlags) === false) {
+        $result = ($context === null) ? $document->load($this->path, $xmlFlags) : $document->loadXML($this->contents($context), $xmlFlags);
+        if ($result === false) {
             throw new CannotLoadAsTypeException($this->path, 'XML');
         }
 
@@ -280,8 +286,8 @@ class File extends SplFileInfo {
     }
 
     /**
-     * @param int  $xmlFlags
-     * @param null $context
+     * @param int $xmlFlags
+     * @param     $context
      *
      * @return \DOMDocument
      * @throws FileNotFoundException
@@ -294,7 +300,7 @@ class File extends SplFileInfo {
 
         $document = new \DOMDocument();
 
-        $result = ($context === null) ? $document->loadHtmlFile($this->path, $xmlFlags) : $document->loadHTML($this->contents($context), $xmlFlags);
+        $result = ($context === null) ? $document->loadHTMLFile($this->path, $xmlFlags) : $document->loadHTML($this->contents($context), $xmlFlags);
         if ($result === false) {
             throw new CannotLoadAsTypeException($this->path, 'HTML');
         }
@@ -309,7 +315,7 @@ class File extends SplFileInfo {
      * @param array  $lines
      * @param string $newLine
      *
-     * @return $this
+     * @return static
      * @throws FileOperationException
      * @throws NotWritableException
      */
@@ -320,9 +326,9 @@ class File extends SplFileInfo {
     /**
      * @param string $content
      * @param int    $flags
-     * @param null   $context
+     * @param        $context
      *
-     * @return $this
+     * @return static
      * @throws FileOperationException
      * @throws NotWritableException
      */
@@ -346,7 +352,7 @@ class File extends SplFileInfo {
      * @param int $depth
      * @param int $flags
      *
-     * @return $this
+     * @return static
      * @throws FileOperationException
      * @throws NotWritableException
      * @throws \JsonException
@@ -362,7 +368,7 @@ class File extends SplFileInfo {
      * @param string $enclosure
      * @param string $escape
      *
-     * @return $this
+     * @return static
      * @throws InvalidWriteModeException
      * @throws NotWritableException
      */
@@ -385,7 +391,7 @@ class File extends SplFileInfo {
     /**
      * @param \SimpleXMLElement $xml
      *
-     * @return $this
+     * @return static
      * @throws FileOperationException
      * @throws NotWritableException
      */
@@ -406,14 +412,14 @@ class File extends SplFileInfo {
      * @param \DOMNode|null $nodeToUseAsRoot
      * @param int           $xmlFlags
      *
-     * @return $this
+     * @return static
      * @throws FileOperationException
      * @throws NotWritableException
      */
     public function writeDomXml(\DOMDocument $xml, ?\DOMNode $nodeToUseAsRoot = null, int $xmlFlags = 0): self {
         $this->checkIsWritable();
 
-        $result = $this->put($xml->saveXml($nodeToUseAsRoot, $xmlFlags));
+        $result = $this->put($xml->saveXML($nodeToUseAsRoot, $xmlFlags));
 
         if ($result === false) {
             throw new FileOperationException($this->path, FileOperationException::OPERATION_WRITE);
@@ -458,9 +464,9 @@ class File extends SplFileInfo {
     // region file operations
 
     /**
-     * @param $group
+     * @param string|int $group
      *
-     * @return $this
+     * @return static
      * @throws CannotChangePermissionException
      * @throws FileNotFoundException
      */
@@ -482,13 +488,13 @@ class File extends SplFileInfo {
     }
 
     /**
-     * @param $permissions
+     * @param int $permissions
      *
-     * @return $this
+     * @return static
      * @throws CannotChangePermissionException
      * @throws FileNotFoundException
      */
-    public function chmod($permissions): self {
+    public function chmod(int $permissions): self {
         $this->checkExists();
 
         if (\chmod($this->path, $permissions) === false) {
@@ -499,10 +505,10 @@ class File extends SplFileInfo {
     }
 
     /**
-     * @param      $user
-     * @param null $group
+     * @param string|int $user
+     * @param null       $group
      *
-     * @return $this
+     * @return static
      * @throws CannotChangePermissionException
      * @throws FileNotFoundException
      */
@@ -526,9 +532,9 @@ class File extends SplFileInfo {
     /**
      * @param string $destination
      * @param bool   $relativeFromCurrentFile
-     * @param null   $context
+     * @param        $context
      *
-     * @return $this
+     * @return static
      * @throws FileNotFoundException
      * @throws FileOperationException
      */
@@ -571,12 +577,12 @@ class File extends SplFileInfo {
     }
 
     /**
-     * @param     $pattern
-     * @param int $flags
+     * @param string $pattern
+     * @param int    $flags
      *
      * @return bool
      */
-    public function fileNameMatches($pattern, int $flags = 0): bool {
+    public function fileNameMatches(string $pattern, int $flags = 0): bool {
         return \fnmatch($pattern, $this->getFilename(), $flags);
     }
 
@@ -584,7 +590,7 @@ class File extends SplFileInfo {
      * @param string $linkName
      * @param bool   $relativeFromCurrentFile
      *
-     * @return $this
+     * @return static
      * @throws FileNotFoundException
      * @throws FileOperationException
      */
@@ -607,7 +613,7 @@ class File extends SplFileInfo {
      * @param string $linkName
      * @param bool   $relativeFromCurrentFile
      *
-     * @return $this
+     * @return static
      * @throws FileNotFoundException
      * @throws FileOperationException
      */
@@ -627,17 +633,17 @@ class File extends SplFileInfo {
     }
 
     /**
-     * @return int
+     * @return int|null
      * @throws InvalidOperationTargetException
      */
-    public function linkInfo(): int {
+    public function linkInfo(): ?int {
         $this->checkIsLink();
 
-        return \linkinfo($this->path);
+        return \linkinfo($this->path) ? : null;
     }
 
     /**
-     * @return $this
+     * @return static
      * @throws FileOperationException
      * @throws InvalidOperationTargetException
      */
@@ -654,29 +660,29 @@ class File extends SplFileInfo {
     }
 
     /**
-     * @return array|false
+     * @return ?array
      * @throws FileNotFoundException
      */
-    public function lstat() {
+    public function lstat(): ?array {
         $this->checkExists();
 
-        return \lstat($this->path);
+        return \lstat($this->path) ? : null;
     }
 
     /**
      * @param string $name
      * @param int    $mode
      * @param bool   $recursive
-     * @param null   $context
+     * @param        $context
      *
-     * @return $this
+     * @return static
      * @throws FileOperationException
      * @throws InvalidOperationTargetException
      */
     public function mkdir(string $name, int $mode = 0777, bool $recursive = false, $context = null): self {
         $this->checkIsDir();
 
-        if (\mkdir($this->path . DIRECTORY_SEPARATOR . $name, $mode, $recursive, $context) === false) {
+        if (\mkdir($this->resolvePath($name), $mode, $recursive, $context) === false) {
             throw new FileOperationException($this->path, FileOperationException::OPERATION_CREATE_SUBDIRECTORY);
         }
 
@@ -687,7 +693,7 @@ class File extends SplFileInfo {
      * @param string $to
      * @param bool   $relativeFromCurrentFile
      *
-     * @return $this
+     * @return static
      * @throws FileNotFoundException
      * @throws FileOperationException
      */
@@ -710,9 +716,9 @@ class File extends SplFileInfo {
     /**
      * @param string $to
      * @param bool   $relativeFromCurrentFile
-     * @param null   $context
+     * @param        $context
      *
-     * @return $this
+     * @return static
      * @throws FileNotFoundException
      * @throws FileOperationException
      */
@@ -734,9 +740,9 @@ class File extends SplFileInfo {
 
     /**
      * @param bool $recursive
-     * @param null $context
+     * @param      $context
      *
-     * @return $this
+     * @return static
      * @throws FileNotFoundException
      * @throws FileOperationException
      * @throws NotWritableException
@@ -749,7 +755,7 @@ class File extends SplFileInfo {
             $result = \unlink($this->path, $context);
         }
         elseif ($this->isDir()) {
-            $result = $this->recursiveDelete($this->path);
+            $result = $this->recursiveDelete($this->path, $context);
         }
         else {
             $result = false;
@@ -764,15 +770,16 @@ class File extends SplFileInfo {
 
     /**
      * @param string $path
+     * @param        $context
      *
      * @return bool
      * @throws FileOperationException
      */
-    private function recursiveDelete(string $path): bool {
+    private function recursiveDelete(string $path, $context = null): bool {
         $contents = \scandir($path);
 
         if ($contents === false) {
-            throw new FileOperationException($path, FileOperationException::OPERATION_SCAN);
+            return false;
         }
 
         $allOk = true;
@@ -788,7 +795,7 @@ class File extends SplFileInfo {
                 $allOk = $this->recursiveDelete($fullPath);
             }
             else {
-                $allOk = $allOk && \unlink($fullPath);
+                $allOk = $allOk && \unlink($fullPath, $context);
             }
         }
 
@@ -809,7 +816,7 @@ class File extends SplFileInfo {
      * @param int|null $time
      * @param int|null $atime
      *
-     * @return $this
+     * @return static
      * @throws FileOperationException
      */
     public function touch(?int $time = null, ?int $atime = null): self {
