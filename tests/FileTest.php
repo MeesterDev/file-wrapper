@@ -127,7 +127,7 @@ class FileTest extends TestCase {
         $file = new File($jsonPath);
         $data = $file->readJson();
         $this->assertIsObject($data);
-        $this->assertObjectHasAttribute('test', $data);
+        $this->assertTrue(property_exists($data, 'test'));
         $this->assertEquals(3.141, $data->test);
         $data = $file->readJson(true);
         $this->assertIsArray($data);
@@ -542,9 +542,7 @@ class FileTest extends TestCase {
     }
 
     public function testPathing(): void {
-        $composePath = function (string ...$parts) {
-            return implode(DIRECTORY_SEPARATOR, $parts);
-        };
+        $composePath = fn (string ...$parts) => implode(DIRECTORY_SEPARATOR, $parts);
 
         $file = new File();
         $this->assertEquals(getcwd(), $file->path);
