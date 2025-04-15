@@ -172,7 +172,7 @@ class File extends SplFileInfo {
      * @return string
      * @throws NotReadableException
      */
-    public function contents($context = null, int $offset = 0, int $maxLength = null): string {
+    public function contents($context = null, int $offset = 0, ?int $maxLength = null): string {
         $this->checkIsReadable();
 
         if ($maxLength === null) {
